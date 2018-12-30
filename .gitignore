@@ -1,0 +1,5 @@
+# exclude saved images
+images/*
+
+# except
+!images/mnist_3800.png
