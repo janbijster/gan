@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import math
 plt.switch_backend('agg')
 
+use_mnist = False
+data_path = 'data.npy' # run prepare_data.py to generate this file from a folder of images
 
 class GAN(object):
     def __init__(self, width = 28, height= 28, channels = 1):
@@ -86,7 +88,10 @@ class GAN(object):
                 self.plot_images(save2file=True, step=cnt)
 
     def plot_images(self, save2file=False,  samples=16, step=0):
-            filename = "./images/mnist_%d.png" % step
+            if use_mnist:
+                filename = "./images/mnist_%d.png" % step
+            else:
+                filename = "./images/custom_data_%d.png" % step
             noise = np.random.normal(0, 1, (samples,100))
             images = self.G.predict(noise)
             
@@ -107,7 +112,10 @@ class GAN(object):
                 plt.show()
 
 if __name__ == '__main__':
-    (X_train, _), (_, _) = mnist.load_data()
+    if use_mnist:
+        (X_train, _), (_, _) = mnist.load_data()
+    else:
+        X_train = np.load(data_path)
     # Rescale -1 to 1
     X_train = (X_train.astype(np.float32) - 127.5) / 127.5
     X_train = np.expand_dims(X_train, axis=3)
