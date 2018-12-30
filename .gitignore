@@ -1,7 +1,10 @@
 # exclude saved images
 images/*
 data/*
+data_textures/*
 data.npy
+data_bw.npy
+data2.npy
 
 # except
 !images/mnist_3800.png

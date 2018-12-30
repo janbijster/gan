@@ -5,7 +5,7 @@ import numpy as np
 # params
 data_dir = 'data'
 output_size = (28, 28)
-output_filename = 'data.npy'
+output_filename = 'data_bw.npy'
 
 # script
 files = os.listdir(data_dir)
@@ -17,15 +17,12 @@ for file in files:
     file_path = '{}/{}'.format(data_dir, file)
     print('Loading {}...'.format(file))
     try:
-        im = PIL.Image.open(file_path)
-        im_scaled = im.resize(output_size, PIL.Image.BICUBIC)
+        im = PIL.Image.open(file_path).convert('L') # grayscale for now
     except Exception:
         print('Error loading image, skipped.')
+    im_scaled = im.resize(output_size, PIL.Image.BICUBIC)
     image = np.array(im_scaled)
-    if image.shape == (28, 28, 3):
-        data.append(image)
-    else:
-        print('Image shape not right, skipping...')
+    data.append(image)
 
     
 train_matrix = np.array(data)

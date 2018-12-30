@@ -12,10 +12,10 @@ import math
 plt.switch_backend('agg')
 
 use_mnist = False
-data_path = 'data.npy' # run prepare_data.py to generate this file from a folder of images
+data_path = 'data_bw.npy' # run prepare_data.py to generate this file from a folder of images
 
 class GAN(object):
-    def __init__(self, width=28, height=28, channels=3):
+    def __init__(self, width = 28, height= 28, channels = 1):
         self.WIDTH = width
         self.HEIGHT = height
         self.CHANNELS = channels
@@ -65,7 +65,7 @@ class GAN(object):
 
         return model
 
-    def train(self, X_train, epochs=50000, batch=64, save_interval=500):
+    def train(self, X_train, epochs=20000, batch = 32, save_interval = 200):
         for cnt in range(epochs):
             half_batch = math.floor(batch/2)
             ## train discriminator
@@ -91,19 +91,17 @@ class GAN(object):
             if use_mnist:
                 filename = "./images/mnist_%d.png" % step
             else:
-                filename = "./images/custom_data_color_%d.png" % step
+                filename = "./images/custom_data_%d.png" % step
             noise = np.random.normal(0, 1, (samples,100))
             images = self.G.predict(noise)
-            # scale images from -1..1 to 0..1
-            images = np.clip(0.5 * (images + 1), 0, 1)
-
+            
             plt.figure(figsize=(10,10))
         
             for i in range(images.shape[0]):
                 plt.subplot(4, 4, i+1)
                 image = images[i, :, :, :]
-                image = np.reshape(image, [ self.HEIGHT, self.WIDTH, self.CHANNELS ])
-                plt.imshow(image)
+                image = np.reshape(image, [ self.HEIGHT, self.WIDTH ])
+                plt.imshow(image, cmap='gray')
                 plt.axis('off')
             plt.tight_layout()
             
@@ -120,6 +118,6 @@ if __name__ == '__main__':
         X_train = np.load(data_path)
     # Rescale -1 to 1
     X_train = (X_train.astype(np.float32) - 127.5) / 127.5
-    # X_train = np.expand_dims(X_train, axis=3) # <- I dont think this is necessary anymore if we have color images?
+    X_train = np.expand_dims(X_train, axis=3)
     gan = GAN()
     gan.train(X_train)
