@@ -2,6 +2,7 @@
 images/*
 data/*
 data_textures/*
+data_daisies/*
 data.npy
 data_bw.npy
 data2.npy

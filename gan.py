@@ -8,14 +8,17 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
 from keras.optimizers import Adam, RMSprop
 import matplotlib.pyplot as plt
+import matplotlib.colors
 import math
+import PIL.Image
 plt.switch_backend('agg')
 
 use_mnist = False
 data_path = 'data.npy' # run prepare_data.py to generate this file from a folder of images
+convert_hsv = False
 
 class GAN(object):
-    def __init__(self, width=28, height=28, channels=3):
+    def __init__(self, width=16, height=16, channels=3):
         self.WIDTH = width
         self.HEIGHT = height
         self.CHANNELS = channels
@@ -65,7 +68,7 @@ class GAN(object):
 
         return model
 
-    def train(self, X_train, epochs=50000, batch=64, save_interval=500):
+    def train(self, X_train, epochs=50000, batch=95, save_interval=500):
         for cnt in range(epochs):
             half_batch = math.floor(batch/2)
             ## train discriminator
@@ -101,8 +104,9 @@ class GAN(object):
         
             for i in range(images.shape[0]):
                 plt.subplot(4, 4, i+1)
-                image = images[i, :, :, :]
-                image = np.reshape(image, [ self.HEIGHT, self.WIDTH, self.CHANNELS ])
+                image = images[i, :, :, :].reshape((self.HEIGHT, self.WIDTH, self.CHANNELS))
+                if convert_hsv:
+                    image = matplotlib.colors.hsv_to_rgb(image)
                 plt.imshow(image)
                 plt.axis('off')
             plt.tight_layout()
@@ -116,10 +120,12 @@ class GAN(object):
 if __name__ == '__main__':
     if use_mnist:
         (X_train, _), (_, _) = mnist.load_data()
+        # Rescale from 0..255 to -1..1
+        X_train = (X_train.astype(np.float32) - 127.5) / 127.5
     else:
         X_train = np.load(data_path)
-    # Rescale -1 to 1
-    X_train = (X_train.astype(np.float32) - 127.5) / 127.5
-    # X_train = np.expand_dims(X_train, axis=3) # <- I dont think this is necessary anymore if we have color images?
+        # Rescale from 0..1 to -1..1
+        X_train = X_train * 2. - 1
+        
     gan = GAN()
     gan.train(X_train)
