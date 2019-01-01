@@ -1,18 +1,21 @@
 import PIL.Image
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 # params
 data_dir = 'data'
-output_size = (28, 28)
 output_filename = 'data_bw.npy'
+scale_images = False
+output_size = (16, 16)
+plot_images = False
 
 # script
 files = os.listdir(data_dir)
 
 data = []
 for file in files:
-    if file[-4:] != '.jpg' and file[-4:] != '.png':
+    if file[-4:] != '.jpg' and file[-4:] != '.png' and file[-4:] != '.gif':
         continue
     file_path = '{}/{}'.format(data_dir, file)
     print('Loading {}...'.format(file))
@@ -20,8 +23,12 @@ for file in files:
         im = PIL.Image.open(file_path).convert('L') # grayscale for now
     except Exception:
         print('Error loading image, skipped.')
-    im_scaled = im.resize(output_size, PIL.Image.BICUBIC)
-    image = np.array(im_scaled)
+    if scale_images:
+        im = im.resize(output_size, PIL.Image.BICUBIC)
+    image = np.clip(np.array(im).astype('f') / 256., 0., 1.)
+    if plot_images: 
+        plt.matshow(image)
+        plt.show()
     data.append(image)
 
     

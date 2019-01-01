@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 import argparse
 import os
 
-data_path = 'data.npy'
+data_path = 'data_bw.npy'
 
 # reparameterization trick
 # instead of sampling from Q(z|X), sample eps = N(0,I)
