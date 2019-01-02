@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 import argparse
 import os
 
-data_path = 'data_bw.npy'
+data_path = 'data.npy'
 
 # reparameterization trick
 # instead of sampling from Q(z|X), sample eps = N(0,I)
@@ -68,7 +68,7 @@ def plot_results(models,
     x_test, _ = data
     os.makedirs(model_name, exist_ok=True)
 
-    filename = os.path.join(model_name, "vae_mean_bw.png")
+    filename = os.path.join(model_name, "vae_mean.png")
     # display a 2D plot of the digit classes in the latent space
     z_mean, _, _ = encoder.predict(x_test,
                                    batch_size=batch_size)
@@ -80,11 +80,11 @@ def plot_results(models,
     plt.savefig(filename)
     plt.show()
 
-    filename = os.path.join(model_name, "digits_over_latent_bw.png")
+    filename = os.path.join(model_name, "digits_over_latent.png")
     # display a 30x30 2D manifold of digits
     n = 30
     digit_size = 16
-    figure = np.zeros((digit_size * n, digit_size * n))
+    figure = np.zeros((digit_size * n, digit_size * n, 3))
     # linearly spaced coordinates corresponding to the 2D plot
     # of digit classes in the latent space
     grid_x = np.linspace(-4, 4, n)
@@ -94,9 +94,10 @@ def plot_results(models,
         for j, xi in enumerate(grid_x):
             z_sample = np.array([[xi, yi]])
             x_decoded = decoder.predict(z_sample)
-            digit = x_decoded[0].reshape(digit_size, digit_size)
+            digit = x_decoded[0].reshape(digit_size, digit_size, 3)
             figure[i * digit_size: (i + 1) * digit_size,
-                   j * digit_size: (j + 1) * digit_size] = digit
+                   j * digit_size: (j + 1) * digit_size,
+                   :] = digit
 
     plt.figure(figsize=(10, 10))
     start_range = digit_size // 2
@@ -108,7 +109,7 @@ def plot_results(models,
     plt.yticks(pixel_range, sample_range_y)
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
-    plt.imshow(figure, cmap='Greys_r')
+    plt.imshow(np.clip(figure, 0., 1.))
     plt.savefig(filename)
     plt.show()
 
@@ -121,7 +122,7 @@ x_test = x_train[split:]
 x_train = x_train[:split]
 
 image_size = x_train.shape[1]
-original_dim = image_size * image_size
+original_dim = image_size * image_size * 3 # 3 for color channels
 x_train = np.reshape(x_train, [-1, original_dim])
 x_test = np.reshape(x_test, [-1, original_dim])
 #x_train = x_train.astype('float32') / 255
@@ -132,7 +133,7 @@ input_shape = (original_dim, )
 intermediate_dim = 512
 batch_size = 128
 latent_dim = 2
-epochs = 500
+epochs = 1000
 
 # VAE model = encoder + decoder
 # build encoder model

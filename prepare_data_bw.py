@@ -20,7 +20,7 @@ for file in files:
     file_path = '{}/{}'.format(data_dir, file)
     print('Loading {}...'.format(file))
     try:
-        im = PIL.Image.open(file_path).convert('L') # grayscale for now
+        im = PIL.Image.open(file_path).convert('L')
     except Exception:
         print('Error loading image, skipped.')
     if scale_images:
